@@ -4,4 +4,6 @@
   :license "MIT"
   :version "0.0.0"
   :serial t
-  :components ((:file "src/package")))
+  :components ((:file "src/package")
+               (:file "src/util")
+               (:file "src/env")))
