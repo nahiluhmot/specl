@@ -1,7 +1,7 @@
 (in-package #:specl)
 
 ;; Create a new environment that holds all of the metadata for a test context.
-(defun new-env (&key desc befores afters defs expectations children)
+(defun new-env (&key (desc "") befores afters defs expectations children)
   (list 'ENV desc befores afters defs expectations children))
 
 ;; Anaphoric macro to access each element in an environment.
@@ -19,8 +19,13 @@
 
 ;; Merge two envs together.
 (defun env+ (env-a env-b)
-  `(ENV ,(concatenate 'string (cadr env-a) (cadr env-b))
+  `(ENV ,(string-trim " " (concatenate 'string (cadr env-a) " " (cadr env-b)))
         ,@(mapcar (lambda (a b) (concatenate 'list a b))
-                  (cdr env-a)
-                  (cdr env-b))))
+                  (cddr env-a)
+                  (cddr env-b))))
 
+;; Given a parent and child environment, will add the parents befores and afters
+;; to the child.
+(defun inherit (parent child)
+  (let ((env (with-env parent (new-env :befores befores :afters afters))))
+    (env+ env child)))
