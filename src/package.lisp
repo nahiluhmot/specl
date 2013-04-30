@@ -1,6 +1,9 @@
 (defpackage #:specl
   (:use #:cl)
-  (:export ;;; From src/util 
+  (:export ; src/util 
            #:alias #:dbind
-           ;;; From src/env
-           #:new-env #:with-env #:env? #:env+))
+           ; src/env
+           #:new-env #:with-env #:env? #:env+ #:inherit
+           ; src/context
+           #:validate-syntax #:normalize-descs #:form->env #:forms->env
+           #:env->cl #:context))
