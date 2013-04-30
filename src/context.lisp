@@ -9,8 +9,8 @@
                           (error "Each form after the description must be a non-null list, not ~A" inner-form))
                       (or (< 0 (length inner-form))
                           (error "Each form after the description must be a non-null list, not ~A" inner-form))
-                      (or (member (car inner-form) '(before after def it context))
-                          (error "Expected one of (before after def it context), got: " (car inner-form)))
+                      (or (member (car inner-form) '(before after let it context))
+                          (error "Expected one of (before after let it context), got: " (car inner-form)))
                       (if (eq 'context (car inner-form))
                         (validate-syntax (cdr inner-form))
                         t)))
@@ -38,7 +38,7 @@
       ('desc    (new-env :desc         (car body)))
       ('before  (new-env :befores      body))
       ('after   (new-env :afters       body))
-      ('def     (new-env :defs         (list body)))
+      ('let     (new-env :lets         (list body)))
       ('it      (new-env :expectations (list body)))
       ('context (new-env :children     (list (forms->env body)))))))
 
@@ -51,7 +51,7 @@
 ;; Given an env, produces Common Lisp code.
 (defun env->cl (env)
   (with-env env
-    `(symbol-macrolet ,(reverse defs)
+    `(symbol-macrolet ,(reverse lets)
        ,@(mapcar (lambda (it)
                     `(handler-case
                       (progn 
