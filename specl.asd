@@ -6,4 +6,5 @@
   :serial t
   :components ((:file "src/package")
                (:file "src/util")
-               (:file "src/env")))
+               (:file "src/env")
+               (:file "src/context")))
