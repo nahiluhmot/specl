@@ -52,17 +52,17 @@
 ;; Given an env, produces Common Lisp code.
 (defun env->cl (env)
   (with-env env
-    `(labels ,(reverse defs)
-       (symbol-macrolet ,(reverse lets)
+    `(symbol-macrolet ,(reverse lets)
+       (labels ,(reverse defs)
          ,@(mapcar (lambda (it)
-                      `(handler-case
-                         (progn 
-                           ,@befores
-                           ,@(cdr it)
-                           ,@afters
-                           (format t "."))
-                         (error (e) (format t "Failed ~A ~A~%" ,desc ,(car it)))))
-                      expectations)
+                     `(handler-case
+                        (progn 
+                          ,@befores
+                          ,@(cdr it)
+                          ,@afters
+                          (format t "."))
+                        (error (e) (format t "Failed ~A ~A~%" ,desc ,(car it)))))
+                     expectations)
          ,@(mapcar (lambda (inner-env) (env->cl (inherit env inner-env))) children)))))
 
 ;; Create a new test context.
