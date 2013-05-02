@@ -53,7 +53,7 @@
 ;; Given an env, produces Common Lisp code.
 (defun env->cl (env)
   (with-env env
-    `(symbol-macrolet ,(reverse lets)
+    `(lazy-let ,(reverse lets)
        (labels ,(reverse defs)
          ,@(mapcar (lambda (it)
                      `(handler-case
