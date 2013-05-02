@@ -33,15 +33,16 @@
 
 ;; Given a single form, will produce an env.
 (defun form->env (form)
-  (dbind (name &body body) form
-    (case name
-      ('desc    (new-env :desc         (car body)))
-      ('before  (new-env :befores      body))
-      ('after   (new-env :afters       body))
-      ('def     (new-env :defs         (list body)))
-      ('let     (new-env :lets         (list body)))
-      ('it      (new-env :expectations (list body)))
-      ('context (new-env :children     (list (forms->env body)))))))
+  (dbind (name . body) form
+    (apply #'new-env
+           (case name
+             ('desc    `(:desc         ,(car body)))
+             ('before  `(:befores      ,body))
+             ('after   `(:afters       ,body))
+             ('def     `(:defs         ,(list body)))
+             ('let     `(:lets         ,(list body)))
+             ('it      `(:expectations ,(list body)))
+             ('context `(:children     ,(list (forms->env body))))))))
 
 ;; Given an env and list of valid forms, creates an env by merging each form togetger.
 (defun forms->env (body)
