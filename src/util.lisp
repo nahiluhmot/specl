@@ -29,3 +29,14 @@
               definitions
               :initial-value `(progn ,@body)
               :from-end t))))
+
+(labels ((replace-let*-with-lazy-let (form)
+           (cond ((listp form) (mapcar #'replace-let*-with-lazy-let form))
+                 ((eq 'let* form) 'lazy-let)
+                 (t form))))
+  ;; Lazily evaluate each argument to destructuring-bind by replacing `let*`
+  ;; with `lazy-let`. Currently, this macro will replace every occurrence of
+  ;; `let*` with `lazy-let`, regardless of whether or not it actually is a
+  ;; function call. Thus, it should be used with caution.
+  (defmacro lazy-dbind (&body args)
+    (replace-let*-with-lazy-let (macroexpand-1 `(destructuring-bind ,@args)))))
