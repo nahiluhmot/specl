@@ -5,5 +5,5 @@
            ; src/env
            #:new-env #:with-env #:env? #:env+ #:inherit
            ; src/context
-           #:validate-syntax #:normalize-descs #:form->env #:forms->env
+           #:validate-context-syntax #:normalize-descs #:form->env #:forms->env
            #:env->cl #:context))

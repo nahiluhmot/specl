@@ -1,7 +1,7 @@
 (in-package #:specl)
 
 ;; Given a form, is a no-op if the form is a valid context. Raises an error otherwise.
-(defun validate-syntax (form)
+(defun validate-context-syntax (form)
   (and (or (stringp (car form))
            (error "The first element of a context must be a string, not: ~A" (car form)))
        (every (lambda (inner-form)
@@ -10,9 +10,9 @@
                       (or (< 0 (length inner-form))
                           (error "Each form after the description must be a non-null list, not ~A" inner-form))
                       (or (member (car inner-form) '(before after def let it context))
-                          (error "Expected one of (before after def let it context), got: " (car inner-form)))
+                          (error "Expected one of (before after def let it context), got: ~A" (car inner-form)))
                       (if (eq 'context (car inner-form))
-                        (validate-syntax (cdr inner-form))
+                        (validate-context-syntax (cdr inner-form))
                         t)))
               (cdr form))))
 
@@ -68,5 +68,5 @@
 
 ;; Create a new test context.
 (defmacro context (&body body)
-  (validate-syntax body) 
+  (validate-context-syntax body) 
   (env->cl (forms->env (normalize-descs body))))
