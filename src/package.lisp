@@ -6,4 +6,5 @@
            #:new-env #:with-env #:env? #:env+ #:inherit
            ; src/context
            #:validate-context-syntax #:normalize-descs #:form->env #:forms->env
-           #:env->cl #:context))
+           #:env->cl #:context #:*shared-contexts*
+           #:validate-shared-context-syntax #:shared-context))
