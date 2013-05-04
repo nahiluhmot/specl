@@ -28,11 +28,11 @@
            (error "The first element of a shared-context must be a string, not: ~A" (car form)))
        (every (lambda (inner-form)
                 (and (or (listp inner-form)
-                          (error "Each form after the description must be a non-null list, not ~A" inner-form))
-                      (or (< 0 (length inner-form))
-                          (error "Each form after the description must be a non-null list, not ~A" inner-form))
-                      (or (member (car inner-form) '(before after def let include-context))
-                          (error "Expected one of (before after def let), got: ~A" (car inner-form)))))
+                         (error "Each form after the description must be a non-null list, not ~A" inner-form))
+                     (or (< 0 (length inner-form))
+                         (error "Each form after the description must be a non-null list, not ~A" inner-form))
+                     (or (member (car inner-form) '(before after def let include-context))
+                         (error "Expected one of (before after def let include-context), got: ~A" (car inner-form)))))
               (cdr form))))
 
 ;; Given a list formatted like this:
@@ -64,7 +64,8 @@
        ('include-context (or (gethash (car body) *shared-contexts*)
                              (error "Could not find shared context: ~A" (car body)))))))
 
-;; Given an env and list of valid forms, creates an env by merging each form togetger.
+;; Given an env and list of valid forms, creates an env by merging each form
+;; together.
 (defun forms->env (body)
   (reduce #'env+
           (mapcar #'form->env body)
@@ -89,7 +90,7 @@
 (defmacro shared-context (&body body)
   (validate-shared-context-syntax body)
   (setf (gethash (car body) *shared-contexts*)
-        (forms->env (normalize-descs body)))
+        (forms->env (cdr body)))
   t)
 
 ;; Create a new test context.
