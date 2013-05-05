@@ -1,8 +1,7 @@
 (in-package #:specl)
 
-;; Given a form, will be a no-op if the form is a valid shared context.
-;; Otherwise, raises an error.
 (defun validate-shared-context-syntax (form)
+  "Given a form, will be a no-op if the form is a valid shared context. Otherwise, raises an error."
   (and (or (listp form)
            (error "Expected a list, not: ~A" form))
        (or (stringp (car form))
@@ -16,10 +15,10 @@
                          (error "Expected one of (before after defun defmacro let include-context), got: ~A" (car inner-form)))))
               (cdr form))))
 
-;; Create a new shared context with a given body. This will add the environment
-;; it creates to a global `*shared-contexts*` hash so that it may be included in
-;; other contexts / context-like forms.
 (defmacro shared-context (&body body)
+  "Create a new shared context with a given body. This will add the environment
+it creates to a global `*shared-contexts*` hash so that it may be included in
+other contexts / context-like forms."
   (validate-shared-context-syntax body)
   (setf (gethash (car body) *shared-contexts*)
         (forms->env (cdr body)))
