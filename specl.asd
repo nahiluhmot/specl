@@ -5,6 +5,7 @@
   :version "0.0.0"
   :serial t
   :components ((:file "src/package")
+               (:file "src/globals")
                (:file "src/util")
                (:file "src/env")
                (:file "src/context")))

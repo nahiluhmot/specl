@@ -1,8 +1,5 @@
 (in-package #:specl)
 
-;; Contains all of the loaded shared contexts.
-(defvar *shared-contexts* (make-hash-table :test #'equal))
-
 ;; Given a form, is a no-op if the form is a valid context. Raises an error otherwise.
 (defun validate-context-syntax (form)
   (and (or (listp form)
