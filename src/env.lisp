@@ -29,3 +29,25 @@
 (defun inherit (parent child)
   (let ((env (with-env parent (new-env :befores befores :afters afters))))
     (env+ env child)))
+
+;; Given a single form, will produce an env.
+(defun form->env (form)
+  (dbind (name . body) form
+     (case name
+       ('desc     (new-env :desc         (car body)))
+       ('before   (new-env :befores      body))
+       ('after    (new-env :afters       body))
+       ('defun    (new-env :funcs        (list body)))
+       ('defmacro (new-env :macros       (list body)))
+       ('let      (new-env :lets         (list body)))
+       ('it       (new-env :expectations (list body)))
+       ('context  (new-env :children     (list (forms->env body))))
+       ('include-context (or (gethash (car body) *shared-contexts*)
+                             (error "Could not find shared context: ~A" (car body)))))))
+
+;; Given an env and list of valid forms, creates an env by merging each form
+;; together.
+(defun forms->env (body)
+  (reduce #'env+
+          (mapcar #'form->env body)
+          :initial-value (new-env)))
