@@ -1,4 +1,4 @@
-(in-package #:specl)
+(in-package #:specl-util)
 
 (defmacro alias (new original)
   "Alias a function / macro."

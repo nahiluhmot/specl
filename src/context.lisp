@@ -1,4 +1,4 @@
-(in-package #:specl)
+(in-package #:specl-context)
 
 (defun validate-context-syntax (form)
   "Given a form, is a no-op if the form is a valid context. Raises an error otherwise."

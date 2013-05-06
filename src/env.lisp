@@ -1,4 +1,4 @@
-(in-package #:specl)
+(in-package #:specl-env)
 
 (defun new-env (&key (desc "") befores afters funcs macros lets expectations children)
   "Create a new environment that holds all of the metadata for a test context."

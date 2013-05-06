@@ -1,4 +1,4 @@
-(in-package #:specl)
+(in-package #:specl-globals)
 
 (defvar *contexts* nil
   "Contains all of the loaded contexts.")

@@ -1,4 +1,4 @@
-(in-package #:specl)
+(in-package #:specl-shared-context)
 
 (defun validate-shared-context-syntax (form)
   "Given a form, will be a no-op if the form is a valid shared context. Otherwise, raises an error."
