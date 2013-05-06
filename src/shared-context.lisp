@@ -11,7 +11,7 @@
                          (error "Each form after the description must be a non-null list, not ~A" inner-form))
                      (or (< 0 (length inner-form))
                          (error "Each form after the description must be a non-null list, not ~A" inner-form))
-                     (or (member (car inner-form) '(before after defun defmacro let include-context))
+                     (or (member (car inner-form) '(before after defun defmacro let include-context) :test #'string=)
                          (error "Expected one of (before after defun defmacro let include-context), got: ~A" (car inner-form)))))
               (cdr form))))
 

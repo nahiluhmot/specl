@@ -3,7 +3,7 @@
   (:export ; src/globals
            #:*contexts* #:*shared-contexts*
            ; src/util 
-           #:alias #:dbind #:lazy-let
+           #:alias #:dbind #:lazy-let #:string-case
            ; src/env
            #:new-env #:with-env #:env? #:env+ #:inherit #:form->env #:forms->env
            ; src/context

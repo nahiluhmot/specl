@@ -33,7 +33,7 @@
 (defun form->env (form)
   "Given a single form, will produce an env."
   (dbind (name . body) form
-     (case name
+     (string-case name
        ('desc     (new-env :desc         (car body)))
        ('before   (new-env :befores      body))
        ('after    (new-env :afters       body))

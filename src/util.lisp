@@ -29,3 +29,11 @@ evaluated lazily and then cached."
               definitions
               :initial-value `(progn ,@body)
               :from-end t))))
+
+(defmacro string-case (value &body forms)
+  (let ((name (gensym)))
+    `(let ((,name ,value))
+      (cond ,@(mapcar (lambda (form)
+                        (dbind (val . body) form
+                          `((string= ,name ,val) ,@body)))
+                      forms)))))

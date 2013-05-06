@@ -11,15 +11,15 @@
                           (error "Each form after the description must be a non-null list, not ~A" inner-form))
                       (or (< 0 (length inner-form))
                           (error "Each form after the description must be a non-null list, not ~A" inner-form))
-                      (or (member (car inner-form) '(before after defun defmacro let it context include-context))
-                          (error "Expected one of (before after func defmacro let it context include-context), got: " (car inner-form)))
-                      (if (eq 'context (car inner-form))
+                      (or (member (car inner-form) '(before after defun defmacro let it context include-context) :test #'string=)
+                          (error "Expected one of (before after func defmacro let it context include-context), got: ~A" (car inner-form)))
+                      (if (string= 'context (car inner-form))
                         (validate-context-syntax (cdr inner-form))
                         t)))
               (cdr form))))
 
 (defun normalize-descs (form)
-  " Given a list formatted like this:
+  "Given a list formatted like this:
 '(\"desc\" (before b1) (after a1) (context \"inner-desc\"))
 Will return:
 '((desc \"desc\") (before b1) (after a1) (context (desc \"inner-desc\")))
@@ -28,7 +28,7 @@ This makes lexing contexts much easier since everything is uniform."
     (cons `(desc ,desc)
           (mapcar (lambda (inner-form)
                     (or (and (listp inner-form)
-                             (eq 'context (car inner-form))
+                             (string= 'context (car inner-form))
                              `(context ,@(normalize-descs (cdr inner-form))))
                         inner-form))
                   body))))
