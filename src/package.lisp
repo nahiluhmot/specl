@@ -1,6 +1,6 @@
 (defpackage #:specl-globals
   (:use #:cl)
-  (:export #:*contexts* #:*shared-contexts*))
+  (:export #:*contexts* #:*shared-contexts* #:*behaviors*))
 
 (defpackage #:specl-util
   (:use #:cl)
@@ -19,7 +19,11 @@
   (:use #:cl #:specl-globals #:specl-util #:specl-env)
   (:export #:validate-shared-context-syntax #:shared-context))
 
+(defpackage #:specl-behavior
+  (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-context)
+  (:export #:validate-behavior-syntaxt #:normalize-child-descs #:behavior))
+
 (defpackage #:specl
   (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-context
-        #:specl-shared-context)
-  (:export #:context #:shared-context))
+        #:specl-shared-context #:specl-behavior)
+  (:export #:context #:shared-context #:behavior))

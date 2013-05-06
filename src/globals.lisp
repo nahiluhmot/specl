@@ -5,3 +5,6 @@
 
 (defvar *shared-contexts* (make-hash-table :test #'equal)
   "Contains all of the loaded shared contexts.")
+
+(defvar *behaviors* (make-hash-table :test #'equal)
+  "Contains all of the loaded behaviors.")

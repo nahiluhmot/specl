@@ -9,4 +9,5 @@
                (:file "src/util")
                (:file "src/env")
                (:file "src/context")
-               (:file "src/shared-context")))
+               (:file "src/shared-context")
+               (:file "src/behavior")))

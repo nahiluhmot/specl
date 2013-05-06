@@ -11,10 +11,10 @@
                           (error "Each form after the description must be a non-null list, not ~A" inner-form))
                       (or (< 0 (length inner-form))
                           (error "Each form after the description must be a non-null list, not ~A" inner-form))
-                      (or (member (car inner-form) '(before after defun defmacro let it context include-context) :test #'string=)
-                          (error "Expected one of (before after func defmacro let it context include-context), got: ~A" (car inner-form)))
+                      (or (member (car inner-form) '(before after defun defmacro let it context include-context it-behaves-like) :test #'string=)
+                          (error "Expected one of (before after func defmacro let it context include-context it-behaves-like), got: ~A" (car inner-form)))
                       (if (string= 'context (car inner-form))
-                        (validate-context-syntax (cdr inner-form))
+                          (validate-context-syntax (cdr inner-form))
                         t)))
               (cdr form))))
 

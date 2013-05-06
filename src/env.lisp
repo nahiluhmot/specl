@@ -43,7 +43,11 @@
        ('it       (new-env :expectations (list body)))
        ('context  (new-env :children     (list (forms->env body))))
        ('include-context (or (gethash (car body) *shared-contexts*)
-                             (error "Could not find shared context: ~A" (car body)))))))
+                             (error "Could not find shared context: ~A" (car body))))
+       ('it-behaves-like (let ((behavior (gethash (car body) *behaviors*)))
+                           (or (and behavior
+                                    (new-env :children behavior))
+                               (error "Could not find behavior: ~A" (car body))))))))
 
 (defun forms->env (body)
   "Given an env and list of valid forms, creates an env by merging each form together."
