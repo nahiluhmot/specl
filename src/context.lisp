@@ -14,8 +14,8 @@
                           (error "Each form after the description must be a non-null list, not ~A" inner-form))
                       (or (< 0 (length inner-form))
                           (error "Each form after the description must be a non-null list, not ~A" inner-form))
-                      (or (member (car inner-form) '(before after def let it context include-context))
-                          (error "Expected one of (before after def let it context include-context), got: ~A" (car inner-form)))
+                      (or (member (car inner-form) '(before after defun defmacro let it context include-context))
+                          (error "Expected one of (before after func defmacro let it context include-context), got: " (car inner-form)))
                       (if (eq 'context (car inner-form))
                         (validate-context-syntax (cdr inner-form))
                         t)))
@@ -31,8 +31,8 @@
                          (error "Each form after the description must be a non-null list, not ~A" inner-form))
                      (or (< 0 (length inner-form))
                          (error "Each form after the description must be a non-null list, not ~A" inner-form))
-                     (or (member (car inner-form) '(before after def let include-context))
-                         (error "Expected one of (before after def let include-context), got: ~A" (car inner-form)))))
+                     (or (member (car inner-form) '(before after defun defmacro let include-context))
+                         (error "Expected one of (before after defun defmacro let include-context), got: ~A" (car inner-form)))))
               (cdr form))))
 
 ;; Given a list formatted like this:
@@ -54,13 +54,14 @@
 (defun form->env (form)
   (dbind (name . body) form
      (case name
-       ('desc    (new-env :desc         (car body)))
-       ('before  (new-env :befores      body))
-       ('after   (new-env :afters       body))
-       ('def     (new-env :defs         (list body)))
-       ('let     (new-env :lets         (list body)))
-       ('it      (new-env :expectations (list body)))
-       ('context (new-env :children     (list (forms->env body))))
+       ('desc     (new-env :desc         (car body)))
+       ('before   (new-env :befores      body))
+       ('after    (new-env :afters       body))
+       ('defun    (new-env :funcs        (list body)))
+       ('defmacro (new-env :macros       (list body)))
+       ('let      (new-env :lets         (list body)))
+       ('it       (new-env :expectations (list body)))
+       ('context  (new-env :children     (list (forms->env body))))
        ('include-context (or (gethash (car body) *shared-contexts*)
                              (error "Could not find shared context: ~A" (car body)))))))
 
@@ -75,17 +76,18 @@
 (defun env->cl (env)
   (with-env env
     `(lazy-let ,(reverse lets)
-       (labels ,(reverse defs)
-         ,@(mapcar (lambda (it)
-                     `(handler-case
-                        (progn 
-                          ,@befores
-                          ,@(cdr it)
-                          ,@afters
-                          (format t "."))
-                        (error (e) (format t "Failed ~A ~A~%" ,desc ,(car it)))))
-                     expectations)
-         ,@(mapcar (lambda (inner-env) (env->cl (inherit env inner-env))) children)))))
+       (labels ,(reverse funcs)
+         (macrolet ,(reverse macros)
+           ,@(mapcar (lambda (it)
+                       `(handler-case
+                          (progn 
+                            ,@befores
+                            ,@(cdr it)
+                            ,@afters
+                            (format t "."))
+                          (error (e) (format t "Failed ~A ~A~%" ,desc ,(car it)))))
+                       expectations)
+           ,@(mapcar (lambda (inner-env) (env->cl (inherit env inner-env))) children))))))
 
 (defmacro shared-context (&body body)
   (validate-shared-context-syntax body)
