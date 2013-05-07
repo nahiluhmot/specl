@@ -24,7 +24,7 @@
   ;; evaluated lazily and then cached.
   (defmacro lazy-let (definitions &body body)
     (if (null definitions)
-      body
+      `(progn ,@body)
       (reduce #'lazy-let-expand-one
               definitions
               :initial-value `(progn ,@body)
