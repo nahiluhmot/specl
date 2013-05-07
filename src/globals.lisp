@@ -8,3 +8,10 @@
 
 (defvar *behaviors* (make-hash-table :test #'equal)
   "Contains all of the loaded behaviors.")
+
+(defun clear-globals! ()
+  "Resets every global to its default value."
+  (setq *contexts* nil)
+  (clrhash *shared-contexts*)
+  (clrhash *behaviors*)
+  t)

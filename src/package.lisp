@@ -1,6 +1,6 @@
 (defpackage #:specl-globals
   (:use #:cl)
-  (:export #:*contexts* #:*shared-contexts* #:*behaviors*))
+  (:export #:*contexts* #:*shared-contexts* #:*behaviors* #:clear-globals!))
 
 (defpackage #:specl-util
   (:use #:cl)
