@@ -11,19 +11,11 @@
   (:export #:new-env #:with-env #:env? #:env+ #:inherit #:form->env
            #:forms->env))
 
-(defpackage #:specl-context
+(defpackage #:specl-syntax
   (:use #:cl #:specl-globals #:specl-util #:specl-env)
-  (:export #:validate-context-syntax #:normalize-descs #:context))
-
-(defpackage #:specl-shared-context
-  (:use #:cl #:specl-globals #:specl-util #:specl-env)
-  (:export #:validate-shared-context-syntax #:shared-context))
-
-(defpackage #:specl-behavior
-  (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-context)
-  (:export #:validate-behavior-syntaxt #:normalize-child-descs #:behavior))
+  (:export #:validate-syntax #:normalize-descs #:context #:shared-context
+           #:behavior))
 
 (defpackage #:specl
-  (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-context
-        #:specl-shared-context #:specl-behavior)
+  (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-syntax)
   (:export #:context #:shared-context #:behavior))
