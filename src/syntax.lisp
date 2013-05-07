@@ -19,18 +19,20 @@ Raises an error otherwise."
                         t)))
               (cdr form))))
 
-(defun normalize-descs (form)
+(defun normalize (form)
   "Given a list formatted like this:
-'(\"desc\" (before b1) (after a1) (context \"inner-desc\"))
+'(\"desc\" (subject sub) (before b1) (after a1) (context \"inner-desc\"))
 Will return:
-'((desc \"desc\") (before b1) (after a1) (context (desc \"inner-desc\")))
+'((desc \"desc\") (let subject sub) (before b1) (after a1)
+  (context (desc \"inner-desc\")))
 This makes lexing contexts much easier since everything is uniform."
   (dbind (desc &body body) form
     (cons `(desc ,desc)
           (mapcar (lambda (inner-form)
-                    (or (and (listp inner-form)
-                             (string= 'context (car inner-form))
-                             `(context ,@(normalize-descs (cdr inner-form))))
+                    (or (and (string= 'context (car inner-form))
+                             `(context ,@(normalize (cdr inner-form))))
+                        (and (string= 'subject (car inner-form))
+                             `(let subject ,@(cdr inner-form)))
                         inner-form))
                   body))))
 
@@ -38,8 +40,8 @@ This makes lexing contexts much easier since everything is uniform."
   "Create a new test context. It will be added to a global *contexts* list that
 holds all of the loaded contexts."
   (validate-syntax body '(before after defun defmacro let it context
-                          include-context it-behaves-like))
-  (push (forms->env (normalize-descs body)) *contexts*)
+                          include-context it-behaves-like subject))
+  (push (forms->env (normalize body)) *contexts*)
   t)
 
 (defmacro shared-context (&body body)
@@ -56,7 +58,7 @@ other contexts / context-like forms."
 global `*behaviors*` hash, with the description as the key and the env that is
 generated as the body."
   (validate-syntax body '(before after defun defmacro let it context
-                          include-context it-behaves-like))
+                          include-context it-behaves-like subject))
   (setf (gethash (car body) *behaviors*)
-        (env+ (new-env :desc "like") (forms->env (normalize-descs body))))
+        (env+ (new-env :desc "like") (forms->env (normalize body))))
   t)
