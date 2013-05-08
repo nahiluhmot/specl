@@ -13,8 +13,7 @@
 
 (defpackage #:specl-syntax
   (:use #:cl #:specl-globals #:specl-util #:specl-env)
-  (:export #:validate-syntax #:normalize-descs #:context #:shared-context
-           #:behavior))
+  (:export #:validate-syntax #:normalize #:context #:shared-context #:behavior))
 
 (defpackage #:specl
   (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-syntax)
