@@ -29,28 +29,3 @@
    to the child."
   (let ((env (with-env parent (new-env :befores befores :afters afters))))
     (env+ env child)))
-
-(defun form->env (form)
-  "Given a single form, will produce an env."
-  (dbind (name . body) form
-     (string-case name
-       ('desc     (new-env :desc         (car body)))
-       ('before   (new-env :befores      body))
-       ('after    (new-env :afters       body))
-       ('defun    (new-env :funcs        (list body)))
-       ('defmacro (new-env :macros       (list body)))
-       ('let      (new-env :lets         (list body)))
-       ('it       (new-env :expectations (list body)))
-       ('context  (new-env :children     (list (forms->env body))))
-       ('include-context (or (gethash (car body) *shared-contexts*)
-                             (error "Could not find shared context: ~A" (car body))))
-       ('it-behaves-like (let ((behavior (gethash (car body) *behaviors*)))
-                           (or (and behavior
-                                    (new-env :children behavior))
-                               (error "Could not find behavior: ~A" (car body))))))))
-
-(defun forms->env (body)
-  "Given an env and list of valid forms, creates an env by merging each form together."
-  (reduce #'env+
-          (mapcar #'form->env body)
-          :initial-value (new-env)))

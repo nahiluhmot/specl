@@ -36,6 +36,31 @@ This makes lexing contexts much easier since everything is uniform."
                         inner-form))
                   body))))
 
+(defun form->env (form)
+  "Given a single form, will produce an env."
+  (dbind (name . body) form
+     (string-case name
+       ('desc     (new-env :desc         (car body)))
+       ('before   (new-env :befores      body))
+       ('after    (new-env :afters       body))
+       ('defun    (new-env :funcs        (list body)))
+       ('defmacro (new-env :macros       (list body)))
+       ('let      (new-env :lets         (list body)))
+       ('it       (new-env :expectations (list body)))
+       ('context  (new-env :children     (list (forms->env body))))
+       ('include-context (or (gethash (car body) *shared-contexts*)
+                             (error "Could not find shared context: ~A" (car body))))
+       ('it-behaves-like (let ((behavior (gethash (car body) *behaviors*)))
+                           (or (and behavior
+                                    (new-env :children behavior))
+                               (error "Could not find behavior: ~A" (car body))))))))
+
+(defun forms->env (body)
+  "Given an env and list of valid forms, creates an env by merging each form together."
+  (reduce #'env+
+          (mapcar #'form->env body)
+          :initial-value (new-env)))
+
 (defmacro context (&body body)
   "Create a new test context. It will be added to a global *contexts* list that
 holds all of the loaded contexts."

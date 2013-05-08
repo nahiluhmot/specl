@@ -8,12 +8,12 @@
 
 (defpackage #:specl-env
   (:use #:cl #:specl-globals #:specl-util)
-  (:export #:new-env #:with-env #:env? #:env+ #:inherit #:form->env
-           #:forms->env))
+  (:export #:new-env #:with-env #:env? #:env+ #:inherit))
 
 (defpackage #:specl-syntax
   (:use #:cl #:specl-globals #:specl-util #:specl-env)
-  (:export #:validate-syntax #:normalize #:context #:shared-context #:behavior))
+  (:export #:validate-syntax #:normalize #:form->env #:forms->env #:context
+           #:shared-context #:behavior))
 
 (defpackage #:specl
   (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-syntax)
