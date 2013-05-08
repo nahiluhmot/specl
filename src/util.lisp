@@ -1,7 +1,7 @@
-(in-package #:specl)
+(in-package #:specl-util)
 
-;; Alias a function / macro.
 (defmacro alias (new original)
+  "Alias a function / macro."
   `(defmacro ,new (&rest lambda-list)
      `(,',original ,@lambda-list)))
 
@@ -20,12 +20,20 @@
                                            (progn (setf ,sym-set? t)
                                                   (setf ,sym-val (progn ,@value))))))
                    ,body))))))
-  ;; Acts much like let, with the expection that all of the arguments are
-  ;; evaluated lazily and then cached.
   (defmacro lazy-let (definitions &body body)
+    "Acts much like let, with the expection that all of the arguments are
+evaluated lazily and then cached."
     (if (null definitions)
       `(progn ,@body)
       (reduce #'lazy-let-expand-one
               definitions
               :initial-value `(progn ,@body)
               :from-end t))))
+
+(defmacro string-case (value &body forms)
+  (let ((name (gensym)))
+    `(let ((,name ,value))
+      (cond ,@(mapcar (lambda (form)
+                        (dbind (val . body) form
+                          `((string= ,name ,val) ,@body)))
+                      forms)))))
