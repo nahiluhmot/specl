@@ -37,3 +37,13 @@ evaluated lazily and then cached."
                         (dbind (val . body) form
                           `((string= ,name ,val) ,@body)))
                       forms)))))
+
+(defmacro is (form)
+  "Raises an error if the given form returns nil."
+  `(unless ,form
+    (error "Expected ~A to not return nil" (quote ,@(list form)))))
+
+(defmacro is-not (form)
+  "Raises an error unless the given form returns nil."
+  `(when ,form
+    (error "Expected ~A to return nil" (quote ,@(list form)))))

@@ -4,7 +4,7 @@
 
 (defpackage #:specl-util
   (:use #:cl)
-  (:export #:alias #:dbind #:lazy-let #:string-case))
+  (:export #:alias #:dbind #:lazy-let #:string-case #:is #:is-not))
 
 (defpackage #:specl-env
   (:use #:cl #:specl-globals #:specl-util)
@@ -18,4 +18,4 @@
 
 (defpackage #:specl
   (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-syntax)
-  (:export #:context #:shared-context #:behavior))
+  (:export #:context #:shared-context #:behavior #:is #:is-not))
