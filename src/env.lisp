@@ -27,5 +27,9 @@
 (defun inherit (parent child)
   "Given a parent and child environment, will add the parents befores and afters
    to the child."
-  (let ((env (with-env parent (new-env :befores befores :afters afters))))
+  (let ((env (with-env parent (new-env :befores befores
+                                       :afters  afters
+                                       :funcs   funcs
+                                       :macros  macros
+                                       :lets    lets))))
     (env+ env child)))

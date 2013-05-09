@@ -8,4 +8,5 @@
                (:file "src/globals")
                (:file "src/util")
                (:file "src/env")
-               (:file "src/syntax")))
+               (:file "src/syntax")
+               (:file "src/runner")))
