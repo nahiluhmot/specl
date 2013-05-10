@@ -15,7 +15,7 @@ Raises an error otherwise."
                           (error "Expected one of ~A, got: ~A"
                                  children (car inner-form)))
                       (if (string= 'context (car inner-form))
-                          (validate-syntax (cdr inner-form))
+                          (validate-syntax (cdr inner-form) children)
                         t)))
               (cdr form))))
 

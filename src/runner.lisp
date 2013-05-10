@@ -17,38 +17,30 @@ Lisp. The code will return `t` on success and `nil` on failure."
      (error (e) nil)))
 
 (defun expand-env (env &optional (parent-desc ""))
-  "Given an environment, expands it into Common Lisp code. The code returns a
-cons cell with the `car` being the passes, and `cdr` being the failures."
+  "Given an environment, expands it into Common Lisp code."
   (let ((passes (gensym)) (failures (gensym)))
     (with-env env
-      `(let ((,passes nil) (,failures nil))
+      `(progn
          ,@(mapcar
              (lambda (it)
                (let ((full-desc (string-trim " " (concatenate 'string parent-desc " " desc " " (car it)))))
                  `(if ,(expand-it (cdr it) befores afters funcs macros lets)
-                    (progn (format t ".")
-                           (push ,full-desc ,passes)) 
-                    (progn (format t "F")
-                           (push ,full-desc ,failures)))))
+                   (push ,full-desc *passes*)
+                   (push ,full-desc *failures*))))
              expectations)
          ,@(mapcar
              (lambda (child)
-               (let ((ps (gensym)) (fs (gensym)))
-                 `(dbind (,ps . ,fs) ,(expand-env (inherit env child)
-                                                  (string-trim " " (concatenate 'string parent-desc " " desc)))
-                    (nconc ,passes ,ps) (nconc ,failures ,fs))))
-             children)
-         (cons ,passes ,failures)))))
+               (expand-env (inherit env child)
+                           (string-trim " " (concatenate 'string parent-desc " " desc))))
+             children)))))
 
 (defmacro run! ()
-  (let ((results (gensym))
-        (passes (gensym))
-        (failures (gensym))
-        (desc (gensym)))
-    `(let* ((,results (list ,@(mapcar #'expand-env *contexts*)))
-            (,passes (remove nil (mapcar #'car ,results)))
-            (,failures (remove nil (mapcar #'cdr ,results))))
+  (let ((desc (gensym)))
+    `(progn 
+       ,@(mapcar #'expand-env *contexts*)
        (format t "~%The following passed:~%")
-       (mapcar (lambda (,desc) (format t "  ~A~%" ,desc)) ,passes)
+       (mapcar (lambda (,desc) (format t "  ~A~%" ,desc)) *passes*)
        (format t "~%The following failed:~%")
-       (mapcar (lambda (,desc) (format t "  ~A~%" ,desc)) ,failures))))
+       (mapcar (lambda (,desc) (format t "  ~A~%" ,desc)) *failures*)
+       (setq *passes* nil)
+       (setq *failures* nil))))
