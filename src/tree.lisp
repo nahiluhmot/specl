@@ -2,13 +2,17 @@
 
 (defun new-tree (&key value children)
   "Creates a new tree."
-  (list 'tree value children))
+  (if (every #'tree? children)
+    (list 'tree value children) 
+    (error "specl-tree:new-tree expected :children to be trees, got ~A" children)))
 
 (defun tree? (form)
   "Returns `t` if the given form is a tree, `nil` otherwise."
   (and (listp form)
        (= 3 (length form))
        (eq 'tree (car form))
+       (listp (third form))
+       (every #'tree? (third form))
        t))
 
 (defun value (tree)

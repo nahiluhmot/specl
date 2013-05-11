@@ -9,8 +9,7 @@
 
 (defpackage #:specl-globals
   (:use #:cl #:specl-tree)
-  (:export #:*contexts* #:*shared-contexts* #:*behaviors* #:*passes*
-           #:*failures* #:clear-globals!))
+  (:export #:*contexts* #:*shared-contexts* #:*behaviors* #:clear-globals!))
 
 (defpackage #:specl-env
   (:use #:cl #:specl-globals #:specl-util)
@@ -25,11 +24,11 @@
            #:context #:shared-context #:behavior))
 
 (defpackage #:specl-runner
-  (:use #:cl #:specl-globals #:specl-util #:specl-env)
-  (:export #:expand-it #:expand-env #:run!))
+  (:use #:cl #:specl-globals #:specl-util #:specl-tree)
+  (:export #:run-tree #:run-all))
 
 (defpackage #:specl
   (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-syntax
         #:specl-runner #:specl-tree)
   (:export #:clear-globals! #:context #:shared-context #:behavior #:is #:is-not
-           #:run!))
+           #:run-all))
