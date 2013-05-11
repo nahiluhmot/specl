@@ -102,10 +102,8 @@ it creates to a global `*shared-contexts*` hash so that it may be included in
 other contexts / context-like forms."
   (validate-syntax body '(before after defun defmacro let include-context
                           subject))
-  (let ((compiled (forms->env (normalize body))))
-    (setf (gethash (car body) *shared-contexts*)
-          (cons 'ENV (cons "" (cddr compiled)))))
-  t)
+  `(setf (gethash ,(car body) *shared-contexts*)
+         ',(cons 'ENV (cons "" (cddr (forms->env (normalize body)))))))
 
 (defmacro behavior (&body body)
   "Creates a new behavior with the given body. The behavior will be added to a
@@ -113,6 +111,5 @@ global `*behaviors*` hash, with the description as the key and the env that is
 generated as the body."
   (validate-syntax body '(before after defun defmacro let it context
                           include-context it-behaves-like subject))
-  (setf (gethash (car body) *behaviors*)
-        (env+ (new-env :desc "like") (forms->env (normalize body))))
-  t)
+  `(setf (gethash ,(car body) *behaviors*)
+         ',(env+ (new-env :desc "like") (forms->env (normalize body)))))
