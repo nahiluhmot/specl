@@ -2,8 +2,9 @@
 
 (defmacro alias (new original)
   "Alias a function / macro."
-  `(defmacro ,new (&rest lambda-list)
-     `(,',original ,@lambda-list)))
+  (let ((lambda-list (gensym)))
+    `(defmacro ,new (&rest ,lambda-list)
+       `(,',original ,@,lambda-list))))
 
 ;; Because 'destructuring-bind' is a pretty big keyboard tax for a commonly used
 ;; macro.
