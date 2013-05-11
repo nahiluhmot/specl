@@ -32,7 +32,7 @@ This makes lexing contexts much easier since everything is uniform."
                     (or (and (string= 'context (car inner-form))
                              `(context ,@(normalize (cdr inner-form))))
                         (and (string= 'subject (car inner-form))
-                             `(let subject ,@(cdr inner-form)))
+                             `(let ,(car inner-form) ,@(cdr inner-form)))
                         inner-form))
                   body))))
 
@@ -73,9 +73,11 @@ holds all of the loaded contexts."
   "Create a new shared context with a given body. This will add the environment
 it creates to a global `*shared-contexts*` hash so that it may be included in
 other contexts / context-like forms."
-  (validate-syntax body '(before after defun defmacro let include-context))
-  (setf (gethash (car body) *shared-contexts*)
-        (forms->env (cdr body)))
+  (validate-syntax body '(before after defun defmacro let include-context
+                          subject))
+  (let ((compiled (forms->env (normalize body))))
+    (setf (gethash (car body) *shared-contexts*)
+          (cons 'ENV (cons "" (cddr compiled)))))
   t)
 
 (defmacro behavior (&body body)
