@@ -1,6 +1,6 @@
 (in-package #:specl-globals)
 
-(defvar *contexts* nil
+(defvar *contexts* (new-tree)
   "Contains all of the loaded contexts.")
 
 (defvar *shared-contexts* (make-hash-table :test #'equal)
@@ -17,7 +17,7 @@
 
 (defun clear-globals! ()
   "Resets every global to its default value."
-  (setq *contexts* nil)
+  (setq *contexts* (new-tree))
   (clrhash *shared-contexts*)
   (clrhash *behaviors*)
   (setq *passes* nil)

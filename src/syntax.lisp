@@ -40,14 +40,15 @@ This makes lexing contexts much easier since everything is uniform."
   "Given a single form, will produce an env."
   (dbind (name . body) form
      (string-case name
-       ('desc     (new-env :desc         (car body)))
-       ('before   (new-env :befores      body))
-       ('after    (new-env :afters       body))
-       ('defun    (new-env :funcs        (list body)))
-       ('defmacro (new-env :macros       (list body)))
-       ('let      (new-env :lets         (list body)))
-       ('it       (new-env :expectations (list body)))
-       ('context  (new-env :children     (list (forms->env body))))
+       ('desc     (new-env :desc        (car body)))
+       ('before   (new-env :befores     body))
+       ('after    (new-env :afters      body))
+       ('defun    (new-env :funcs       (list body)))
+       ('defmacro (new-env :macros      (list body)))
+       ('let      (new-env :lets        (list body)))
+       ('it       (new-env :children    (list (new-env :desc (car body)
+                                                       :expectation (cdr body)))))
+       ('context  (new-env :children    (list (forms->env body))))
        ('include-context (or (gethash (car body) *shared-contexts*)
                              (error "Could not find shared context: ~A" (car body))))
        ('it-behaves-like (let ((behavior (gethash (car body) *behaviors*)))
@@ -61,13 +62,39 @@ This makes lexing contexts much easier since everything is uniform."
           (mapcar #'form->env body)
           :initial-value (new-env)))
 
+(defun env->lambdas (env)
+  "Given an env, will produce a tree of lambdas that return `pass` if the code
+executed without an error. In the case of an error, the error itself is
+returned."
+  (with-env env
+    (if (null expectation)
+      `(new-tree
+         :value (list ,desc nil)
+         :children (list ,@(mapcar (lambda (child)
+                                     (env->lambdas (inherit env child)))
+                                   children)))
+      (let ((e (gensym)))
+        `(new-tree :value
+           (list ,desc
+             (lambda ()
+               (handler-case
+                 (lazy-let ,lets
+                   (macrolet ,macros
+                     (labels ,funcs
+                       ,@befores
+                       ,@expectation
+                       ,@afters
+                       'pass)))
+                 (error (,e) ,e)))))))))
+
 (defmacro context (&body body)
   "Create a new test context. It will be added to a global *contexts* list that
 holds all of the loaded contexts."
   (validate-syntax body '(before after defun defmacro let it context
                           include-context it-behaves-like subject))
-  (push (forms->env (normalize body)) *contexts*)
-  t)
+  `(setq *contexts* 
+         (add-child ,(env->lambdas (forms->env (normalize body)))
+                    *contexts*)))
 
 (defmacro shared-context (&body body)
   "Create a new shared context with a given body. This will add the environment
