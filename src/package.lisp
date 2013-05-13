@@ -1,6 +1,6 @@
 (defpackage #:specl-util
   (:use #:cl)
-  (:export #:alias #:dbind #:lazy-let #:string-case #:is #:is-not))
+  (:export #:alias #:dbind #:lazy-let #:string-case #:flatten #:is #:is-not))
 
 (defpackage #:specl-tree
   (:use #:cl)

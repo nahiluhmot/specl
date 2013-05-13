@@ -39,6 +39,12 @@ evaluated lazily and then cached."
                           `((string= ,name ,val) ,@body)))
                       forms)))))
 
+(defun flatten (struct)
+  "Given a structure, will return a non-nested list."
+  (cond ((null struct) nil)
+        ((atom struct) (list struct))
+        ((listp struct) (mapcan #'flatten struct))))
+
 (defmacro is (form)
   "Raises an error if the given form returns nil."
   `(unless ,form
