@@ -3,7 +3,7 @@
 (defun validate-syntax (form children)
   "Given a form and list of possible children, is a no-op if the form is valid.
 Raises an error otherwise."
-  (and (or (listp form)
+  (and (or (and (listp form) (not (null form))) 
            (error "Expected a list, not: ~A" form)) 
        (or (stringp (car form))
            (error "The first element of a context must be a string, not: ~A"
@@ -17,7 +17,8 @@ Raises an error otherwise."
                       (if (string= 'context (car inner-form))
                           (validate-syntax (cdr inner-form) children)
                         t)))
-              (cdr form))))
+              (cdr form))
+       t))
 
 (defun normalize (form)
   "Given a list formatted like this:

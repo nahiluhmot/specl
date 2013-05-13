@@ -60,7 +60,7 @@ satisfy the predicate."
     (error "specl-tree:find-tree expected a tree, got: ~A" tree)))
 
 (defun tree->list (tree)
-  "Breadth-first traverses a tree and produces a list."
+  "Traverses the tree and produces a list."
   (if (tree? tree)
     (cons (value tree) (reduce #'append (mapcar #'tree->list (tree-children tree))))
     (error "specl-tree:tree->list expected a tree, got: ~A" tree)))
