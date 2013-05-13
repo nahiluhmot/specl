@@ -25,10 +25,10 @@
 
 (defpackage #:specl-runner
   (:use #:cl #:specl-globals #:specl-util #:specl-tree)
-  (:export #:run-tree #:run-all))
+  (:export #:run-tree #:run-all #:run-by-desc))
 
 (defpackage #:specl
   (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-syntax
         #:specl-runner #:specl-tree)
   (:export #:clear-globals! #:context #:shared-context #:behavior #:is #:is-not
-           #:run-all))
+           #:run-all #:run-by-desc))

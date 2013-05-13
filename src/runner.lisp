@@ -15,3 +15,11 @@
 (defun run-all ()
   (run-tree *contexts*)
   t)
+
+(defun run-by-desc (to-find-desc &optional (tree *contexts*))
+  (dbind (desc test) (value tree)
+    (if (string= desc to-find-desc)
+      (run-tree tree)
+      (mapcar (lambda (child) (run-by-desc to-find-desc child))
+              (tree-children tree))))
+  t)
