@@ -10,4 +10,5 @@
                (:file "src/globals")
                (:file "src/env")
                (:file "src/syntax")
-               (:file "src/runner")))
+               (:file "src/runner")
+               (:file "src/cli")))

@@ -47,6 +47,13 @@ function applied to each value in the tree."
                                 (tree-children tree)))
     (error "specl-tree:map-tree expected a tree, got: ~A" tree)))
 
+(defun map-with-accum (func tree &key initial-value)
+  (multiple-value-bind (new-node next-value) (funcall func (value tree) initial-value)
+    (new-tree :value new-node
+              :children (mapcar (lambda (child)
+                                  (map-with-accum func child :initial-value next-value))
+                                (tree-children tree)))))
+
 (defun find-tree (pred tree)
   "Given a predicate and a tree, returns a list of values in the tree that
 satisfy the predicate."
