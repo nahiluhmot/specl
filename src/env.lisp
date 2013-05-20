@@ -1,13 +1,13 @@
 (in-package #:specl-env)
 
-(defun new-env (&key (desc "") befores afters funcs macros lets expectation children)
+(defun new-env (&key (desc "") befores afters funcs macros lets expectation)
   "Create a new environment that holds all of the metadata for a test context."
-  (list 'ENV desc befores afters funcs macros lets expectation children))
+  (list 'ENV desc befores afters funcs macros lets expectation))
 
 (defun env? (env)
   "Test if a value is an env."
   (and (listp env)
-       (= 9 (length env))
+       (= 8 (length env))
        (string= 'ENV (car env))
        (stringp (cadr env))
        (every #'listp (cddr env))
@@ -18,10 +18,17 @@
   (let ((evaluated-env (gensym)))
     `(let ((,evaluated-env ,env))
        (if (env? ,evaluated-env)
-         (dbind (desc befores afters funcs macros lets expectation children)
+         (dbind (desc befores afters funcs macros lets expectation)
                 (cdr ,evaluated-env)
                 ,@body)
          (error "specl-env:with-env expected an env, got: '~A'" ,evaluated-env)))))
+
+(defun env->new-env-syntax (env)
+  (if (env? env)
+    (with-env env
+      `(new-env :desc ',desc :befores ',befores :afters ',afters :funcs ',funcs
+                :macros ',macros :lets ',lets :expectation ',expectation))
+    (error "specl-env:env->new-env-syntax expected an env, got: ~A" env)))
 
 (defun env+ (env-a env-b)
   "Merge two envs together."

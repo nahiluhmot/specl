@@ -15,6 +15,14 @@
        (every #'tree? (third form))
        t))
 
+(defun tree->new-tree-syntax (tree)
+  "Given a tree, retruns the Common Lisp syntax to create a new identical tree."
+  (if (tree? tree)
+    `(new-tree :value ,(value tree)
+               :children (list ,@(mapcar #'tree->new-tree-syntax
+                                         (tree-children tree))))
+    (error "specl-tree:tree->new-tree-syntax expected a tree, got: ~A" tree)))
+
 (defun value (tree)
   "Given a tree, returns its value."
   (if (tree? tree)

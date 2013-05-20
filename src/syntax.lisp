@@ -37,64 +37,74 @@ This makes lexing contexts much easier since everything is uniform."
                         inner-form))
                   body))))
 
-(defun form->env (form)
-  "Given a single form, will produce an env."
+(defun form->env-tree (form)
+  "Given a single form, will produce an env-tree."
   (dbind (name . body) form
-     (string-case name
-       ('desc     (new-env :desc        (car body)))
-       ('before   (new-env :befores     body))
-       ('after    (new-env :afters      body))
-       ('defun    (new-env :funcs       (list body)))
-       ('defmacro (new-env :macros      (list body)))
-       ('let      (new-env :lets        (list body)))
-       ('it       (new-env :children    (list (new-env :desc (car body)
-                                                       :expectation (cdr body)))))
-       ('context  (new-env :children    (list (forms->env body))))
-       ('include-context (or (gethash (car body) *shared-contexts*)
-                             (error "Could not find shared context: ~A" (car body))))
-       ('it-behaves-like (let ((behavior (gethash (car body) *behaviors*)))
-                           (or (and behavior
-                                    (new-env :children (list behavior)))
-                               (error "Could not find behavior: ~A" (car body))))))))
+    (string-case name
+      ('desc     (new-tree :value (new-env :desc    (car body))))
+      ('before   (new-tree :value (new-env :befores body)))
+      ('after    (new-tree :value (new-env :afters  body)))
+      ('defun    (new-tree :value (new-env :funcs   (list body))))
+      ('defmacro (new-tree :value (new-env :macros  (list body))))
+      ('let      (new-tree :value (new-env :lets    (list body))))
+      ('it       (new-tree :children
+                           (list (new-tree :value (new-env :desc (car body)
+                                                           :expectation (cdr body))))))
+      ('context  (new-tree :children (list (forms->env-tree body))))
+      ('include-context (or (gethash (car body) *shared-contexts*)
+                            (error "Could not find matching shared context for: '~A'" (car body))))
+      ('it-behaves-like (let ((behavior (gethash (car body) *behaviors*)))
+                             (or (and (not (null behavior))
+                                      (new-tree :children (list behavior)))
+                                 (error "Could not find matching behavior for '~A'" (car body))))))))
 
-(defun forms->env (body)
-  "Given an env and list of valid forms, creates an env by merging each form together."
-  (reduce #'env+
-          (mapcar #'form->env body)
-          :initial-value (new-env)))
+(defun forms->env-tree (forms)
+  "Given a list of forms, produces an env tree."
+  (reduce (lambda (tree curr)
+            (new-tree :value (env+ (or (value tree) (new-env))
+                                   (or (value curr) (new-env)))
+                      :children (mapcan #'tree-children (list tree curr))))
+          (mapcar #'form->env-tree forms)
+          :initial-value (new-tree)))
 
-(defun env->lambdas (env)
-  "Given an env, will produce a tree of lambdas that return `pass` if the code
-executed without an error. In the case of an error, the error itself is
-returned."
-  (with-env env
-    (if (null expectation)
-      `(new-tree
-         :value (list ,desc nil)
-         :children (list ,@(mapcar (lambda (child)
-                                     (env->lambdas (inherit env child)))
-                                   children)))
-      (let ((e (gensym)))
-        `(new-tree :value
-           (list ,desc
-             (lambda ()
-               (handler-case
-                 (lazy-let ,lets
-                   (macrolet ,macros
-                     (labels ,funcs
-                       ,@befores
-                       ,@expectation
-                       ,@afters
-                       'pass)))
-                 (error (,e) ,e)))))))))
+(defun env-tree->lambda-tree (tree)
+  "Given a tree composed of envs, returns a tree where each value is structered
+as such:
+  `(,desc ,zero-arg-lambda)
+This allows each spec to be transformed into code and cached."
+  (map-with-accum
+    (lambda (env acc)
+      (let ((next-env (inherit acc env))
+            (e (gensym)))
+        (values
+          (with-env next-env
+            (if (null expectation)
+              `(list ,desc nil)
+              `(list ,desc
+                 (lambda ()
+                   (handler-case
+                     (lazy-let ,lets
+                       (macrolet ,macros
+                         (labels ,funcs
+                           ,@befores
+                           ,@expectation
+                           ,@afters
+                           'pass)))
+                     (error (,e) ,e))))))
+          next-env)))
+    tree
+    :initial-value (new-env)))
 
 (defmacro context (&body body)
   "Create a new test context. It will be added to a global *contexts* list that
 holds all of the loaded contexts."
   (validate-syntax body '(before after defun defmacro let it context
                           include-context it-behaves-like subject))
-  `(setq *contexts* 
-         (add-child ,(env->lambdas (forms->env (normalize body)))
+  `(setf *contexts* 
+         (add-child ,(tree->new-tree-syntax
+                       (env-tree->lambda-tree
+                         (forms->env-tree
+                           (normalize body))))
                     *contexts*)))
 
 (defmacro shared-context (&body body)
@@ -104,7 +114,11 @@ other contexts / context-like forms."
   (validate-syntax body '(before after defun defmacro let include-context
                           subject))
   `(setf (gethash ,(car body) *shared-contexts*)
-         ',(cons 'ENV (cons "" (cddr (forms->env (normalize body)))))))
+         ,(let ((env-tree (forms->env-tree (normalize body))))
+            (tree->new-tree-syntax
+              (map-tree #'env->new-env-syntax 
+                        (set-value (append '(ENV "") (cddr (value env-tree)))
+                                   env-tree))))))
 
 (defmacro behavior (&body body)
   "Creates a new behavior with the given body. The behavior will be added to a
@@ -113,4 +127,8 @@ generated as the body."
   (validate-syntax body '(before after defun defmacro let it context
                           include-context it-behaves-like subject))
   `(setf (gethash ,(car body) *behaviors*)
-         ',(env+ (new-env :desc "like") (forms->env (normalize body)))))
+         ,(let ((env-tree (forms->env-tree (normalize body))))
+            (tree->new-tree-syntax
+              (map-tree #'env->new-env-syntax 
+                        (set-value (env+ (new-env :desc "like") (value env-tree))
+                                   env-tree))))))

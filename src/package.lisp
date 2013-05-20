@@ -5,7 +5,8 @@
 (defpackage #:specl-tree
   (:use #:cl)
   (:export #:new-tree #:tree? #:value #:tree-children #:set-value #:add-child
-           #:map-tree #:find-tree #:tree->list))
+           #:map-tree #:map-with-accum #:tree->new-tree-syntax #:find-tree
+           #:tree->list))
 
 (defpackage #:specl-globals
   (:use #:cl #:specl-tree)
@@ -13,15 +14,15 @@
 
 (defpackage #:specl-env
   (:use #:cl #:specl-globals #:specl-util)
-  (:export #:new-env #:with-env #:env? #:env+ #:inherit
+  (:export #:new-env #:with-env #:env? #:env+ #:inherit #:env->new-env-syntax
            ; Make sure we export the symbols captured by with-env
-           #:desc #:befores #:afters #:funcs #:macros #:lets #:expectation
-           #:children))
+           #:env #:desc #:befores #:afters #:funcs #:macros #:lets
+           #:expectation))
 
 (defpackage #:specl-syntax
   (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-tree)
-  (:export #:validate-syntax #:normalize #:form->env #:forms->env #:env->lambdas
-           #:context #:shared-context #:behavior))
+  (:export #:validate-syntax #:normalize #:form->env-tree #:forms->env-tree
+           #:env-tree->lambda-tree #:context #:shared-context #:behavior))
 
 (defpackage #:specl-runner
   (:use #:cl #:specl-globals #:specl-util #:specl-tree)
