@@ -5,6 +5,7 @@
 (defpackage #:specl.tree
   (:use #:cl)
   (:export #:new-tree #:tree? #:value #:tree-children #:set-value #:add-child
+           #:remove-children-if #:remove-children-unless #:add-child-unique
            #:map-tree #:map-with-accum #:tree->new-tree-syntax #:find-tree
            #:tree->list #:filter-tree))
 

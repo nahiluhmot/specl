@@ -46,6 +46,27 @@ original tree with the exception that its value is the new value."
     (new-tree :value (value tree) :children (cons child-tree (tree-children tree)))
     (error "specl.tree:add-child expected two trees, got: ~A and ~A" tree child-tree)))
 
+(defun remove-children-if (pred tree)
+  "Given a predicate and tree, will remove each child in the tree that does not
+satisfy the predicate."
+  (if (tree? tree)
+    (new-tree :value (value tree)
+              :children (remove-if pred (tree-children tree)))
+    (error "specl.tree:filter-tree expected a tree, got: ~A" tree)))
+
+(defun remove-children-unless (pred tree)
+  "Given a predicate and tree, will remove each child in the tree that does
+satisfy the predicate."
+  (remove-children-if (lambda (child) (not (funcall pred child))) tree))
+
+(defun add-child-unique (child tree &key (test #'eql))
+  "Given a child, tree, and optional test function, will add the child to the
+tree, ensuring its uniqueness by the test function."
+  (add-child child
+             (remove-children-if (lambda (other-child)
+                                   (funcall test child other-child))
+                                 tree)))
+
 (defun map-tree (func tree)
   "Given a function with an arity of one and a tree, returns a new tree with the
 function applied to each value in the tree."
