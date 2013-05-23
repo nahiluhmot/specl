@@ -101,11 +101,14 @@ holds all of the loaded contexts."
   (validate-syntax body '(before after defun defmacro let it context
                           include-context it-behaves-like subject))
   `(setf *contexts* 
-         (add-child ,(tree->new-tree-syntax
-                       (env-tree->lambda-tree
-                         (forms->env-tree
-                           (normalize body))))
-                    *contexts*)))
+         (add-child-unique ,(tree->new-tree-syntax
+                              (env-tree->lambda-tree
+                                (forms->env-tree
+                                  (normalize body))))
+                           *contexts*
+                           :test (lambda (tree-a tree-b)
+                                   (string= (car (value tree-a))
+                                            (car (value tree-b)))))))
 
 (defmacro shared-context (&body body)
   "Create a new shared context with a given body. This will add the environment
