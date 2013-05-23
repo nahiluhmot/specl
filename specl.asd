@@ -9,5 +9,5 @@
                (:file "src/tree"    :depends-on ("src/util"))
                (:file "src/globals" :depends-on ("src/util"))
                (:file "src/env"     :depends-on ("src/util"))
-               (:file "src/syntax"  :depends-on ("src/env" "src/tree"))
-               (:file "src/runner"  :depends-on ("src/tree"))))
+               (:file "src/syntax"  :depends-on ("src/env" "src/tree" "src/globals"))
+               (:file "src/runner"  :depends-on ("src/tree" "src/globals"))))

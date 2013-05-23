@@ -1,4 +1,4 @@
-(in-package #:specl-syntax)
+(in-package #:specl.syntax)
 
 (defun validate-syntax (form children)
   "Given a form and list of possible children, is a no-op if the form is valid.

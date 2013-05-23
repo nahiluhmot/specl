@@ -1,4 +1,4 @@
-(in-package #:specl-runner)
+(in-package #:specl.runner)
 
 (defun run-tree (tree &optional (spaces "") (parent-desc ""))
   (dbind (desc test) (value tree)

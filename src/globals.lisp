@@ -1,4 +1,4 @@
-(in-package #:specl-globals)
+(in-package #:specl.globals)
 
 (defvar *contexts* (new-tree :value '("" nil))
   "Contains all of the loaded contexts.")
