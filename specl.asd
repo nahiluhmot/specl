@@ -5,10 +5,9 @@
   :version "0.0.0"
   :serial t
   :components ((:file "src/package")
-               (:file "src/util")
-               (:file "src/tree")
-               (:file "src/globals")
-               (:file "src/env")
-               (:file "src/syntax")
-               (:file "src/runner")
-               (:file "src/cli")))
+               (:file "src/util"    :depends-on ("src/package"))
+               (:file "src/tree"    :depends-on ("src/util"))
+               (:file "src/globals" :depends-on ("src/util"))
+               (:file "src/env"     :depends-on ("src/util"))
+               (:file "src/syntax"  :depends-on ("src/env" "src/tree"))
+               (:file "src/runner"  :depends-on ("src/tree"))))

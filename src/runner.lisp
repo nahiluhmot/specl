@@ -40,3 +40,11 @@ tests. Returns the number of failing test cases."
   "Runs each test context, prints the reluts, and returns the number of failing
 test cases."
   (apply #'print-results (run-tree *contexts*)))
+
+(defun run-by-desc (desc)
+  "Runs each context whose desc is `string=` to the argument."
+  (apply #'print-results
+         (run-tree (filter-tree (lambda (val)
+                                  (dbind (val-desc _) val
+                                    (string= val-desc desc)))
+                                *contexts*))))

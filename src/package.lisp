@@ -6,7 +6,7 @@
   (:use #:cl)
   (:export #:new-tree #:tree? #:value #:tree-children #:set-value #:add-child
            #:map-tree #:map-with-accum #:tree->new-tree-syntax #:find-tree
-           #:tree->list))
+           #:tree->list #:filter-tree))
 
 (defpackage #:specl-globals
   (:use #:cl #:specl-tree)
@@ -28,12 +28,8 @@
   (:use #:cl #:specl-globals #:specl-util #:specl-tree)
   (:export #:run-tree #:run-all #:run-by-desc))
 
-(defpackage #:specl-cli
-  (:use #:cl #:specl-util #:specl-runner)
-  (:export #:run-specs))
-
 (defpackage #:specl
   (:use #:cl #:specl-globals #:specl-util #:specl-env #:specl-syntax
         #:specl-runner #:specl-tree)
   (:export #:clear-globals! #:context #:shared-context #:behavior #:is #:is-not
-           #:run-all #:run-by-desc #:run-specs))
+           #:run-all #:run-by-desc))

@@ -79,3 +79,21 @@ satisfy the predicate."
   (if (tree? tree)
     (cons (value tree) (reduce #'append (mapcar #'tree->list (tree-children tree))))
     (error "specl-tree:tree->list expected a tree, got: ~A" tree)))
+
+(defun filter-tree (pred tree)
+  "Given a predicate and a tree, will filter the tree based upon the predicate.
+If the predicate returns a non-nil value on the tree's value, the original tree
+is returned. If the predicate returns a non-nil value on any of the tree's
+children (or any of their children) a new tree with the children that satisfy
+the predicate is returned. Otherwise, nil is returned."
+  (if (tree? tree)
+    (if (funcall pred (value tree))
+      tree
+      (let ((children (remove nil
+                              (mapcar (lambda (child) (filter-tree pred child))
+                                      (tree-children tree)))))
+        (if (null children)
+          nil
+          (new-tree :value (value tree)
+                    :children children))))
+    (error "specl-tree:filter-tree expected a tree, got: ~A" tree)))
