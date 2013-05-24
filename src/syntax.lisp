@@ -51,7 +51,11 @@ This makes lexing contexts much easier since everything is uniform."
                            (list (new-tree :value (new-env :desc (car body)
                                                            :expectation (cdr body))))))
       ('context  (new-tree :children (list (forms->env-tree body))))
-      ('include-context (or (gethash (car body) *shared-contexts*)
+      ('include-context (or (let ((shared-context (first-by (lambda (env)
+                                                               (with-env env
+                                                                 (string= desc (car body))))
+                                                             (mapcar #'value (tree-children *shared-contexts*)))))
+                              (and shared-context (new-tree :value (append '(ENV "") (cddr shared-context)))))
                             (error "Could not find matching shared context for: '~A'" (car body))))
       ('it-behaves-like (let ((behavior (gethash (car body) *behaviors*)))
                              (or (and (not (null behavior))
@@ -116,12 +120,14 @@ it creates to a global `*shared-contexts*` hash so that it may be included in
 other contexts / context-like forms."
   (validate-syntax body '(before after defun defmacro let include-context
                           subject))
-  `(setf (gethash ,(car body) *shared-contexts*)
-         ,(let ((env-tree (forms->env-tree (normalize body))))
-            (tree->new-tree-syntax
-              (map-tree #'env->new-env-syntax 
-                        (set-value (append '(ENV "") (cddr (value env-tree)))
-                                   env-tree))))))
+  `(setf *shared-contexts*
+         (add-child-unique ,(let ((env-tree (forms->env-tree (normalize body))))
+                              (tree->new-tree-syntax
+                                (map-tree #'env->new-env-syntax env-tree)))
+                           *shared-contexts*
+                           :test (lambda (tree-a tree-b)
+                                    (string= (cadr (value tree-a))
+                                             (cadr (value tree-b)))))))
 
 (defmacro behavior (&body body)
   "Creates a new behavior with the given body. The behavior will be added to a

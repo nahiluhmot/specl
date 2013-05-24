@@ -39,6 +39,13 @@ evaluated lazily and then cached."
                           `((string= ,name ,val) ,@body)))
                       forms)))))
 
+(defun first-by (pred lst)
+  "Given a predicate and list, returns the first value that satisfies that
+predicate."
+  (cond ((null lst) nil)
+        ((funcall pred (car lst)) (car lst))
+        (t (first-by pred (cdr lst)))))
+
 (defun flatten (struct)
   "Given a structure, will return a non-nested list."
   (cond ((null struct) nil)
