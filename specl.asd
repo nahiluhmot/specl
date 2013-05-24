@@ -2,7 +2,7 @@
   :description "An RSpec-like testing framework for common lisp"
   :author "Tom Hulihan"
   :license "MIT"
-  :version "0.0.0"
+  :version "0.0.1"
   :serial t
   :components ((:file "src/package")
                (:file "src/util"    :depends-on ("src/package"))
