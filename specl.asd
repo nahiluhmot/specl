@@ -1,29 +1,37 @@
-(asdf:defsystem #:specl
-  :description "An RSpec-like testing framework for common lisp"
+(defsystem #:specl
+  :description "An RSpec-like testing framework for Common Lisp"
   :author "Tom Hulihan"
   :license "MIT"
   :version "0.0.1"
   :serial t
-  :components ((:file "src/package")
-               (:file "src/util"    :depends-on ("src/package"))
-               (:file "src/tree"    :depends-on ("src/util"))
-               (:file "src/globals" :depends-on ("src/util"))
-               (:file "src/env"     :depends-on ("src/util"))
-               (:file "src/syntax"  :depends-on ("src/env" "src/tree" "src/globals"))
-               (:file "src/runner"  :depends-on ("src/tree" "src/globals"))))
+  :pathname "src/"
+  :components ((:file "package")
+               (:file "util"    :depends-on ("package"))
+               (:file "tree"    :depends-on ("util"))
+               (:file "globals" :depends-on ("util"))
+               (:file "env"     :depends-on ("util"))
+               (:file "syntax"  :depends-on ("env" "tree" "globals"))
+               (:file "runner"  :depends-on ("tree" "globals"))))
 
-(asdf:defsystem #:specl-spec
+(defsystem #:specl-spec
   :description "Tests for specl"
-  :around-compile nil
   :author "Tom Hulihan"
   :license "MIT"
-  :version "0.0.0"
   :serial t
   :depends-on (:specl)
-  :components ((:file "spec/package")
-               (:file "spec/shared-contexts")
-               (:file "spec/behaviors")
-               (:file "spec/util-spec")
-               (:file "spec/tree-spec")
-               (:file "spec/env-spec")
-               (:file "spec/syntax-spec")))
+  :pathname "spec/"
+  :components ((:file "package")
+               (:file "shared-contexts" :depends-on ("package"))
+               (:file "behaviors"       :depends-on ("package"))
+               (:file "util-spec"       :depends-on ("package"))
+               (:file "tree-spec"       :depends-on ("package"))
+               (:file "env-spec"        :depends-on ("package"))
+               (:file "syntax-spec"     :depends-on ("package"))))
+
+(defmethod perform ((o test-op) (c (eql (find-system :specl))))
+  (operate 'load-op :specl-spec)
+  (operate 'test-op :specl-spec))
+
+(defmethod perform ((o test-op) (c (eql (find-system :specl-spec))))
+  (or (zerop (funcall (intern (string '#:run-all) :specl)))
+      (error "Some specs failed!")))
