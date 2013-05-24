@@ -6,5 +6,5 @@
 (defvar *shared-contexts* (new-tree) 
   "Contains all of the loaded shared contexts.")
 
-(defvar *behaviors* (make-hash-table :test #'equal)
+(defvar *behaviors* (new-tree)
   "Contains all of the loaded behaviors.")

@@ -57,9 +57,14 @@ This makes lexing contexts much easier since everything is uniform."
                                                              (mapcar #'value (tree-children *shared-contexts*)))))
                               (and shared-context (new-tree :value (append '(ENV "") (cddr shared-context)))))
                             (error "Could not find matching shared context for: '~A'" (car body))))
-      ('it-behaves-like (let ((behavior (gethash (car body) *behaviors*)))
-                             (or (and (not (null behavior))
-                                      (new-tree :children (list behavior)))
+      ('it-behaves-like (let ((behavior (first-by (lambda (tree)
+                                                    (with-env (value tree)
+                                                      (string= desc (car body))))
+                                                  (tree-children *behaviors*))))
+                             (or (and behavior
+                                      (new-tree :children (list (set-value
+                                                                  (env+ (new-env :desc "like") (value behavior))
+                                                                  behavior))))
                                  (error "Could not find matching behavior for '~A'" (car body))))))))
 
 (defun forms->env-tree (forms)
@@ -135,9 +140,12 @@ global `*behaviors*` hash, with the description as the key and the env that is
 generated as the body."
   (validate-syntax body '(before after defun defmacro let it context
                           include-context it-behaves-like subject))
-  `(setf (gethash ,(car body) *behaviors*)
-         ,(let ((env-tree (forms->env-tree (normalize body))))
-            (tree->new-tree-syntax
-              (map-tree #'env->new-env-syntax 
-                        (set-value (env+ (new-env :desc "like") (value env-tree))
-                                   env-tree))))))
+  `(setf *behaviors*
+         (add-child-unique ,(let ((env-tree (forms->env-tree (normalize body))))
+                              (tree->new-tree-syntax
+                                (map-tree #'env->new-env-syntax 
+                                          env-tree)))
+                           *behaviors*
+                           :test (lambda (tree-a tree-b)
+                                    (string= (cadr (value tree-a))
+                                             (cadr (value tree-b)))))))
