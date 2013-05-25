@@ -29,9 +29,9 @@
 
     (context "but at least one of the children is not a tree"
       (let children (list 1 (new-tree :value 'uh-oh)))
+      (include-context "error-helpers")
       (it "raises an error"
-        (is (handler-case (progn subject nil)
-                          (error (e) t)))))))
+        (raises-error subject)))))
 
 (context "tree?"
   (context "when the argument is not a tree"
