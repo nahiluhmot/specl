@@ -1,9 +1,10 @@
-(in-package #:specl-util)
+(in-package #:specl.util)
 
 (defmacro alias (new original)
   "Alias a function / macro."
-  `(defmacro ,new (&rest lambda-list)
-     `(,',original ,@lambda-list)))
+  (let ((lambda-list (gensym)))
+    `(defmacro ,new (&rest ,lambda-list)
+       `(,',original ,@,lambda-list))))
 
 ;; Because 'destructuring-bind' is a pretty big keyboard tax for a commonly used
 ;; macro.
@@ -37,6 +38,19 @@ evaluated lazily and then cached."
                         (dbind (val . body) form
                           `((string= ,name ,val) ,@body)))
                       forms)))))
+
+(defun first-by (pred lst)
+  "Given a predicate and list, returns the first value that satisfies that
+predicate."
+  (cond ((null lst) nil)
+        ((funcall pred (car lst)) (car lst))
+        (t (first-by pred (cdr lst)))))
+
+(defun flatten (struct)
+  "Given a structure, will return a non-nested list."
+  (cond ((null struct) nil)
+        ((atom struct) (list struct))
+        ((listp struct) (mapcan #'flatten struct))))
 
 (defmacro is (form)
   "Raises an error if the given form returns nil."
