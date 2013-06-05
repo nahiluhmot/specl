@@ -18,7 +18,7 @@
   (:use #:cl #:specl.globals #:specl.util)
   (:export #:new-env #:with-env #:env? #:env+ #:inherit #:env->new-env-syntax
            ; Make sure we export the symbols captured by with-env
-           #:env #:desc #:befores #:afters #:funcs #:macros #:lets
+           #:env #:tags #:desc #:befores #:afters #:funcs #:macros #:lets
            #:expectation))
 
 (defpackage #:specl.syntax

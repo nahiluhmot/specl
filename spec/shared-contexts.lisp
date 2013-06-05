@@ -10,6 +10,7 @@
 
 (shared-context "sample-envs"
   (let context-desc "my-description")
+  (let context-tags '(:slow))
   (let context-befores '((format t "befores~%")))
   (let context-afters '((format t "afters~%")))
   (let context-funcs '((func (name) (* 2 (1+ name)))))
@@ -17,6 +18,7 @@
   (let context-lets '((test-let 14)))
   (let context-expectation nil)
   (let sample-context (new-env :desc context-desc
+                               :tags context-tags
                                :befores context-befores
                                :afters context-afters
                                :funcs context-funcs

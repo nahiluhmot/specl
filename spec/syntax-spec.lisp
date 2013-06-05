@@ -100,7 +100,8 @@
 
       (it "has nothing else set"
         (is (string-empty? (cadr env)))
-        (is (every #'null (cdddr env))))))
+        (is (null (caddr env)))
+        (is (every #'null (cddddr env))))))
   
   (context "after"
     (let test-afters '((after (format t "hello"))))
@@ -369,8 +370,6 @@
       (after (remove-test-behavior))
 
       (it "returns that env-tree as the child of a tree with no value"
-        (format t "subject: ~A~%" subject)
-        (format t "env-tree: ~A~%" env-tree)
         (is (equal (new-tree :children (list (set-value (env+ (new-env :desc "like")
                                                               (value env-tree))
                                                         env-tree)))

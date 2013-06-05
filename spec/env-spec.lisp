@@ -50,7 +50,8 @@
     (subject 'not-an-env)
 
     (it "raises an error"
-      (raises-error (with-env subject (format t "desc: ~A" desc)))))
+      (raises-error (with-env subject
+                      (format t "desc: ~A" desc)))))
   
   (context "when the given form is an env"
     (include-context "sample-envs")
@@ -96,9 +97,11 @@
 
   (context "when both arguments are envs"
     (let desc-a "first-desc")
+    (let tags-a '(:yolo :swag))
     (let befores-a '((format t "befores")))
     (let afters-a '((format t "afters")))
     (let env-a (new-env :desc desc-a
+                        :tags tags-a
                         :befores befores-a
                         :afters afters-a))
     (let desc-b "")
@@ -138,6 +141,7 @@
     (it "adds all of the runtime metadata"
       (with-env subject
         (is (equal desc it-desc))
+        (is (equal tags context-tags))
         (is (equal expectation it-expectation))
         (is (equal befores context-befores))
         (is (equal afters context-afters))

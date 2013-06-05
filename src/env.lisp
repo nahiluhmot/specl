@@ -1,13 +1,13 @@
 (in-package #:specl.env)
 
-(defun new-env (&key (desc "") befores afters funcs macros lets expectation)
+(defun new-env (&key (desc "") tags befores afters funcs macros lets expectation)
   "Create a new environment that holds all of the metadata for a test context."
-  (list 'ENV desc befores afters funcs macros lets expectation))
+  (list 'ENV desc tags befores afters funcs macros lets expectation))
 
 (defun env? (env)
   "Test if a value is an env."
   (and (listp env)
-       (= 8 (length env))
+       (= 9 (length env))
        (string= 'ENV (car env))
        (stringp (cadr env))
        (every #'listp (cddr env))
@@ -18,7 +18,7 @@
   (let ((evaluated-env (gensym)))
     `(let ((,evaluated-env ,env))
        (if (env? ,evaluated-env)
-         (dbind (desc befores afters funcs macros lets expectation)
+         (dbind (desc tags befores afters funcs macros lets expectation)
                 (cdr ,evaluated-env)
                 ,@body)
          (error "specl.env:with-env expected an env, got: '~A'" ,evaluated-env)))))
@@ -26,8 +26,9 @@
 (defun env->new-env-syntax (env)
   (if (env? env)
     (with-env env
-      `(new-env :desc ',desc :befores ',befores :afters ',afters :funcs ',funcs
-                :macros ',macros :lets ',lets :expectation ',expectation))
+      `(new-env :desc ',desc :tags ',tags :befores ',befores :afters ',afters
+                :funcs ',funcs :macros ',macros :lets ',lets
+                :expectation ',expectation))
     (error "specl.env:env->new-env-syntax expected an env, got: ~A" env)))
 
 (defun env+ (env-a env-b)
@@ -42,7 +43,8 @@
 (defun inherit (parent child)
   "Given a parent and child environment, will add the parents befores and afters
    to the child."
-  (let ((env (with-env parent (new-env :befores befores
+  (let ((env (with-env parent (new-env :tags    tags
+                                       :befores befores
                                        :afters  afters
                                        :funcs   funcs
                                        :macros  macros
