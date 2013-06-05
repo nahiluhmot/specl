@@ -15,11 +15,15 @@
   (:export #:*contexts* #:*shared-contexts* #:*behaviors*))
 
 (defpackage #:specl.env
-  (:use #:cl #:specl.globals #:specl.util)
+  (:use #:cl #:specl.util)
   (:export #:new-env #:with-env #:env? #:env+ #:inherit #:env->new-env-syntax
            ; Make sure we export the symbols captured by with-env
            #:env #:tags #:desc #:befores #:afters #:funcs #:macros #:lets
            #:expectation))
+
+(defpackage #:specl.test
+  (:use #:cl #:specl.util)
+  (:export ))
 
 (defpackage #:specl.syntax
   (:use #:cl #:specl.globals #:specl.util #:specl.env #:specl.tree)

@@ -10,6 +10,7 @@
                (:file "tree"    :depends-on ("util"))
                (:file "globals" :depends-on ("util"))
                (:file "env"     :depends-on ("util"))
+               (:file "test"    :depends-on ("util"))
                (:file "syntax"  :depends-on ("env" "tree" "globals"))
                (:file "runner"  :depends-on ("tree" "globals"))))
 
