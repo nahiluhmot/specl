@@ -10,6 +10,7 @@
                (:file "tree"    :depends-on ("util"))
                (:file "globals" :depends-on ("util"))
                (:file "env"     :depends-on ("util"))
+               (:file "test"    :depends-on ("util"))
                (:file "syntax"  :depends-on ("env" "tree" "globals"))
                (:file "runner"  :depends-on ("tree" "globals"))))
 
@@ -26,6 +27,7 @@
                (:file "util-spec"       :depends-on ("package"))
                (:file "tree-spec"       :depends-on ("package"))
                (:file "env-spec"        :depends-on ("package"))
+               (:file "test-spec"       :depends-on ("package"))
                (:file "syntax-spec"     :depends-on ("package"))))
 
 (defmethod perform ((o test-op) (c (eql (find-system :specl))))
