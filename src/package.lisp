@@ -23,7 +23,7 @@
 
 (defpackage #:specl.test
   (:use #:cl #:specl.util)
-  (:export #:new-test #:test? #:with-test #:desc #:tags #:expectation))
+  (:export #:new-test #:test? #:with-test #:desc #:tags #:expectation)))
 
 (defpackage #:specl.syntax
   (:use #:cl #:specl.globals #:specl.util #:specl.env #:specl.tree)
