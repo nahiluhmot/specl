@@ -9,28 +9,31 @@ Raises an error otherwise."
            (error "The first element of a context must be a string, not: ~A"
                   (car form)))
        (every (lambda (inner-form)
-                 (and (or (and (listp inner-form) (not (null inner-form))) 
-                          (error "Expected a list, got: ~A" inner-form))
-                      (or (member (car inner-form) children :test #'string=)
-                          (error "Expected one of ~A, got: ~A"
-                                 children (car inner-form)))
-                      (if (string= 'context (car inner-form))
+                (or (keywordp inner-form)
+                    (and (or (and (listp inner-form) (not (null inner-form))) 
+                            (error "Expected a list, got: ~A" inner-form))
+                        (or (member (car inner-form) children :test #'string=)
+                            (error "Expected one of ~A, got: ~A"
+                                   children (car inner-form)))
+                        (if (string= 'context (car inner-form))
                           (validate-syntax (cdr inner-form) children)
-                        t)))
+                          t))))
               (cdr form))
        t))
 
 (defun normalize (form)
   "Given a list formatted like this:
-'(\"desc\" (subject sub) (before b1) (after a1) (context \"inner-desc\"))
+'(\"desc\" :my-tag (subject sub) (before b1) (after a1) (context \"inner-desc\"))
 Will return:
-'((desc \"desc\") (let subject sub) (before b1) (after a1)
+'((desc \"desc\") (tag :my-tag) (let subject sub) (before b1) (after a1)
   (context (desc \"inner-desc\")))
 This makes lexing contexts much easier since everything is uniform."
   (dbind (desc &body body) form
     (cons `(desc ,desc)
           (mapcar (lambda (inner-form)
-                    (or (and (string= 'context (car inner-form))
+                    (or (and (keywordp inner-form)
+                             `(tag ,inner-form))
+                        (and (string= 'context (car inner-form))
                              `(context ,@(normalize (cdr inner-form))))
                         (and (string= 'subject (car inner-form))
                              `(let ,(car inner-form) ,@(cdr inner-form)))
@@ -42,6 +45,7 @@ This makes lexing contexts much easier since everything is uniform."
   (dbind (name . body) form
     (string-case name
       ('desc     (new-tree :value (new-env :desc    (car body))))
+      ('tag      (new-tree :value (new-env :tags    body)))
       ('before   (new-tree :value (new-env :befores body)))
       ('after    (new-tree :value (new-env :afters  body)))
       ('defun    (new-tree :value (new-env :funcs   (list body))))

@@ -11,8 +11,8 @@
                (:file "globals" :depends-on ("util"))
                (:file "env"     :depends-on ("util"))
                (:file "test"    :depends-on ("util"))
-               (:file "syntax"  :depends-on ("env" "tree" "globals"))
-               (:file "runner"  :depends-on ("tree" "globals"))))
+               (:file "syntax"  :depends-on ("env" "test" "tree" "globals"))
+               (:file "runner"  :depends-on ("test" "tree" "globals"))))
 
 (defsystem #:specl-spec
   :description "Tests for specl"

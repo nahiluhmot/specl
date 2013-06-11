@@ -90,3 +90,21 @@
     (it "raises an error"
       (raises-error (specl.test:with-test 1 2))
       (raises-error (specl.test:with-test '(not a test) nil)))))
+
+(context "test->new-test-syntax"
+  (context "when the argument is not a test"
+    (include-context "error-helpers")
+    (it "raises an error"
+      (raises-error (specl.test:test->new-test-syntax 'not-a-test)))) 
+
+  (context "when the argument is a test"
+    (let test (specl.test:new-test :desc "my-test"
+                                   :tags '(:tag-a :tag-b)
+                                   :expectation (lambda () 1)))
+    (subject (eval (specl.test:test->new-test-syntax test)))
+    (it "returns the syntax to create an identical test"
+      (is (specl.test:test? subject))
+      (specl.test:with-test subject
+        (is (string= specl.test:desc (cadr test)))
+        (is (equal specl.test:tags (caddr test)))
+        (is (= 1 (funcall (cadddr test))))))))

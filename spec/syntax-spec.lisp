@@ -29,10 +29,15 @@
     (context "and the first argument is a string"
       (let desc "sample-desc")
 
-      (context "when at least one of the following forms is not a list"
+      (context "when at least one of the following forms is not a list or keyword"
         (let body '((before) after))
         (it "raises an error"
           (raises-error subject)))
+
+      (context "when the following forms are keywords"
+        (let body '(:swag :yolo))
+        (it "returns t"
+          (is (eq t subject))))
 
       (context "when each following form is a list"
         (context "but at least one of the forms is not one of the expected children"
@@ -58,13 +63,16 @@
                 (is (eq t subject))))))))))
 
 (context "normalize"
-  (subject (normalize '("suckerz" (subject 1))))
+  (subject (normalize '("suckerz" (subject 1) :slow)))
 
   (it "wraps the first value in the list into a `(desc ,value) structure"
     (is (equal '(desc "suckerz") (car subject))))
 
   (it "replaces `(subject ,form) with `(let subject ,form)"
-    (is (equal '(let subject 1) (cadr subject)))))
+    (is (equal '(let subject 1) (cadr subject))))
+
+  (it "replaces all keywords with `(tag ,keyword)"
+    (is (equal '(specl.syntax::tag :slow) (caddr subject)))))
 
 (context "form->env-tree"
   (subject (form->env-tree form))
@@ -83,7 +91,26 @@
         (with-env (value subject) 
           (is (string= desc test-desc))))
       (it "has no other fields set"
-        (is (every #'null (cddr subject))))))
+        (is (every #'null (cddr (value subject)))))))
+
+  (context "tag"
+    (let test-tag :swag)
+    (let form `(tag ,test-tag))
+
+    (it-behaves-like "a function that returns a singleton env-tree")
+
+    (context "the env"
+      (let env (value subject)) 
+      (let children (tree-children subject))
+
+      (it "has its tags set"
+        (with-env env
+          (is (equal (list test-tag) tags))))
+
+      (it "has nothing else set"
+        (is (string= "" (cadr env)))
+        (is (every #'null (cdddr env)))
+        (is (null children)))))
 
   (context "before"
     (let test-befores '((before (format t "hi"))))
